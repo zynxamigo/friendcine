@@ -122,6 +122,15 @@ async fn main() {
         .with_state(App::default());
     let port = std::env::var("PORT").unwrap_or_else(|_| "8080".into());
     let l = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
-    println!("FriendCine em http://localhost:{port}");
+    let address = format!("http://127.0.0.1:{port}");
+    println!("FriendCine em {address}");
+    if std::env::var_os("FC_NO_BROWSER").is_none() {
+        #[cfg(target_os = "windows")]
+        let _ = std::process::Command::new("cmd").args(["/C", "start", "", &address]).spawn();
+        #[cfg(target_os = "macos")]
+        let _ = std::process::Command::new("open").arg(&address).spawn();
+        #[cfg(all(unix, not(target_os = "macos")))]
+        let _ = std::process::Command::new("xdg-open").arg(&address).spawn();
+    }
     axum::serve(l, app).await.unwrap();
 }
