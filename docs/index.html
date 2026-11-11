@@ -83,6 +83,25 @@ main{height:calc(100% - 62px);overflow:auto}
 [hidden]{display:none!important}#room[hidden],#home[hidden],#p1[hidden],#p2[hidden],#noshare[hidden]{display:none!important}.side-channel.on,.side-channel.active{background:#302a49;color:#d8ceff}.side-channel.g{background:transparent;color:#aaa7b7}
 @media(max-width:1000px){#room{grid-template-columns:205px minmax(0,1fr)}.member-rail{display:none}.brand{min-width:190px}}
 @media(max-width:680px){body{overflow:auto}header{height:56px;padding:0 13px}.brand{min-width:0;font-size:16px}.brand small{display:none}.header-actions #install{display:none}main{height:calc(100% - 56px)}#home{grid-template-columns:1fr;padding:45px 18px;gap:28px}.hero h1{font-size:42px}.hero p{font-size:14px}#room{height:auto;min-height:calc(100vh - 56px);display:flex;flex-direction:column}.server-rail{border:0}.room-head{height:48px}.side-scroll{display:flex;gap:5px;padding:7px 10px;overflow-x:auto}.side-label,.side-note,.side-profile{display:none}.side-channel{width:auto;white-space:nowrap;margin:0;padding:8px 11px}.stage-top{height:58px;padding:0 12px}.stage-content{padding:12px}.stage-toolbar .hint{display:none}.screen-frame{min-height:260px;height:48vh}#grid video{max-height:45vh}.stage-bottom{padding:10px}.stage-bottom button{flex:1}.card{flex-basis:112px}.card img,.card .ph{width:112px;height:156px}.tabs button{padding:7px 9px}}
+
+/* Full-screen cinema chat */
+#chatOverlay{position:fixed;inset:0;z-index:40;background:#101015;display:grid;grid-template-rows:62px minmax(0,1fr)}
+#chatOverlay[hidden]{display:none!important}.chat-top{display:flex;align-items:center;gap:12px;padding:0 22px;background:#15151c;border-bottom:1px solid var(--line)}
+.chat-top strong{font-size:15px}.chat-top small{color:var(--muted);font-size:11px}
+.chat-main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 360px}
+.chat-context{padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;background:radial-gradient(ellipse at center,#201b32 0%,#101015 65%)}
+.chat-context p{max-width:420px;color:var(--muted);line-height:1.65}
+.chat-panel{min-height:0;display:flex;flex-direction:column;border-left:1px solid var(--line);background:#17171e}
+.chat-panel-head{padding:18px;border-bottom:1px solid var(--line);font-weight:750}.chat-panel-head small{display:block;color:var(--muted);font-weight:400;margin-top:4px}
+#chatMessages{flex:1;min-height:0;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:11px}
+.chat-message{background:#22222c;border:1px solid #30303c;border-radius:12px;padding:10px 12px;overflow-wrap:anywhere}
+.chat-message.mine{background:#302949;border-color:#4b3d72}.chat-message .meta{font-size:10px;color:#aaa6b9;margin-bottom:5px;display:flex;gap:8px}
+.chat-message .body{font-size:13px;line-height:1.5;white-space:pre-wrap}.chat-empty{margin:auto;color:var(--muted);font-size:12px;text-align:center;line-height:1.6}
+.chat-compose{padding:13px;border-top:1px solid var(--line);display:flex;gap:8px}#chatInput{flex:1;min-width:0}
+.download-link{display:inline-flex;align-items:center;gap:7px;text-decoration:none;background:#302949;border:1px solid #514277;color:#e9e2ff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700}
+.download-link:hover{background:#3b3159}
+@media(max-width:760px){.chat-main{grid-template-columns:1fr}.chat-context{display:none}.chat-panel{border-left:0}.chat-top{padding:0 13px}}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 </head>
@@ -90,7 +109,7 @@ main{height:calc(100% - 62px);overflow:auto}
 <header>
   <div class="brand"><div class="brandmark">◈</div><div>FriendCine<small>ASSISTA JUNTO. COMPARTILHE TUDO.</small></div></div>
   <div class="header-spacer"></div>
-  <div class="header-actions"><span class="online"></span><small style="color:var(--muted)">Salas entre amigos</small><button id="rustapp" class="ghost">App para PC</button><button id="install" class="ghost">↓ Instalar</button></div>
+  <div class="header-actions"><span class="online"></span><small style="color:var(--muted)">Salas entre amigos</small><button id="rustapp" class="ghost">App para PC</button><a class="download-link" href="https://github.com/zynxamigo/friendcine/actions/runs/43083825637" target="_blank" rel="noopener">↓ Baixar instalador Windows</a></div>
 </header>
 <main>
 <section id="home">
@@ -128,7 +147,7 @@ main{height:calc(100% - 62px);overflow:auto}
         <div class="screen-frame"><div id="grid"></div><div id="noshare"><div class="empty-icon">▣</div><div class="empty-title">Sua tela ainda não está sendo compartilhada</div><div class="empty-copy">Quando alguém começar a transmitir, a tela aparecerá aqui. Clique em compartilhar para começar.</div></div></div>
       </div>
       <div id="p2" hidden>
-        <div class="cinema-player"><h3 id="ptitle">Nenhum título em reprodução</h3><video id="vid" playsinline></video><div class="cinema-controls"><div class="ho"><input type="file" id="mfile" accept=".m3u,.m3u8,.txt" aria-label="Carregar lista M3U"><input id="url" placeholder="URL da lista M3U"><button id="murl" class="ghost">Carregar URL</button></div><div class="vo"><button id="unmute" class="ghost">▶ Ativar vídeo e som</button><small>O anfitrião controla a reprodução.</small></div></div></div>
+        <div class="cinema-player"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:#1b1b23"><h3 id="ptitle">Nenhum título em reprodução</h3><button id="chatOpen" class="ghost" type="button" style="margin-right:12px">💬 Abrir chat</button></div><video id="vid" playsinline></video><div class="cinema-controls"><div class="ho"><input type="file" id="mfile" accept=".m3u,.m3u8,.txt" aria-label="Carregar lista M3U"><input id="url" placeholder="URL da lista M3U"><button id="murl" class="ghost">Carregar URL</button></div><div class="vo"><button id="unmute" class="ghost">▶ Ativar vídeo e som</button><small>O anfitrião controla a reprodução.</small></div></div></div>
         <div class="library-panel"><div class="library-heading"><span>▤ Biblioteca da sala</span><span class="ho"><button id="clr" class="ghost">Limpar sugestões</button></span></div><div class="ho" style="color:var(--muted);font-size:11px;margin-bottom:10px">Carregue sua lista M3U para organizar filmes e séries.</div><input id="q" placeholder="⌕  Buscar no catálogo..." aria-label="Buscar no catálogo"><div id="eps"></div><div id="cats" style="color:var(--muted);font-size:12px">Aguardando o anfitrião carregar a lista.</div></div>
         <div class="library-panel"><div class="library-heading">Sugestões dos participantes</div><div id="sug" style="color:var(--muted);font-size:12px">Nenhuma sugestão ainda.</div></div>
       </div>
@@ -138,11 +157,17 @@ main{height:calc(100% - 62px);overflow:auto}
   <aside class="member-rail"><div class="member-heading">NA SALA</div><div class="member"><div class="avatar">FC</div><div><strong id="member-self">Você</strong><small>Anfitrião / participante</small></div><span class="member-status"></span></div><div class="member-info">Compartilhe o convite com seus amigos para eles entrarem nesta sala. A experiência funciona melhor com uma conexão estável.</div><div class="member-heading" style="margin-top:25px">DICA RÁPIDA</div><div style="font-size:11px;color:var(--muted);line-height:1.6;padding:0 7px">No canal de cinema, somente o anfitrião pode iniciar, pausar e controlar o conteúdo.</div></aside>
 </section>
 </main>
+
+<div id="chatOverlay" hidden aria-label="Chat da sala de cinema">
+ <div class="chat-top"><div><strong>💬 Chat do cinema</strong><br><small>Converse com quem está assistindo com você</small></div><div style="flex:1"></div><button id="chatClose" class="ghost" type="button">Voltar ao cinema ✕</button></div>
+ <div class="chat-main"><div class="chat-context"><div class="empty-icon">▶</div><strong>O cinema continua rolando</strong><p>O chat fica em uma tela própria, sem cobrir os controles do player. Feche esta tela para voltar ao filme.</p></div>
+ <section class="chat-panel"><div class="chat-panel-head">Mensagens da sala<small>Mensagens visíveis para todos os participantes conectados</small></div><div id="chatMessages" aria-live="polite"><div class="chat-empty">Nenhuma mensagem ainda.<br>Comece a conversa!</div></div><form id="chatForm" class="chat-compose"><input id="chatInput" maxlength="500" autocomplete="off" placeholder="Escreva uma mensagem..." aria-label="Mensagem do chat"><button class="primary" type="submit">Enviar</button></form></section></div>
+</div>
 <div id="toast" hidden></div>
 <script>
 const $=s=>document.querySelector(s),h=(t,a={},...k)=>{const e=document.createElement(t);Object.assign(e,a);e.append(...k);return e};
 const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.i);toast.i=setTimeout(()=>t.hidden=true,3500)};
-let peer,isHost=false,conns={},hostConn=null,myId='',peers=[],stream=null,room='',cat=null,hls=null,lastUrl='',pending=null,gstate={},sug=[],calls={};
+let peer,isHost=false,conns={},hostConn=null,myId='',peers=[],stream=null,room='',cat=null,hls=null,lastUrl='',pending=null,gstate={},sug=[],calls={},chatLog=[];
 const names={},called=new Set(),V=$('#vid'),nick=()=>$('#nick').value||'Amigo';
 // ---- Sala: o navegador do dono é o "servidor" (PeerJS só faz a conexão inicial)
 function enter(r,host){room=r;location.hash=r;$('#home').hidden=true;$('#room').hidden=false;$('#rid').textContent=location.href;
@@ -160,15 +185,15 @@ function enter(r,host){room=r;location.hash=r;$('#home').hidden=true;$('#room').
 const send=m=>isHost?onHost(m,myId):hostConn?.open&&hostConn.send(m);
 function emit(m,skipSelf){for(const c of Object.values(conns))c.open&&c.send(m);if(!skipSelf)onMsg(m)}
 function onHost(m,from){switch(m.t){
-  case'hello':names[from]=m.name;peers=[...new Set([...peers,from])];conns[from]?.send({t:'welcome',catalog:cat,state:gstate,sug,names});emit({t:'peers',list:peers,names:{[from]:m.name}});break;
+  case'hello':names[from]=m.name;peers=[...new Set([...peers,from])];conns[from]?.send({t:'welcome',catalog:cat,state:gstate,sug,names,chat:chatLog});emit({t:'peers',list:peers,names:{[from]:m.name}});break;
   case'm3u':if(from===myId){cat=parseM3U(m.text);emit({t:'catalog',catalog:cat})}break;
   case'state':if(from===myId){gstate=m;emit(m,true)}break;
   case'suggest':sug.push({title:String(m.title).slice(0,300),url:String(m.url).slice(0,500),by:String(m.by).slice(0,40)});sug=sug.slice(-50);emit({t:'sug',sug});break;
   case'clearsug':if(from===myId){sug=[];emit({t:'sug',sug})}break;
   case'stopshare':emit({t:'stopshare',id:from});break}}
 function onMsg(m){switch(m.t){
-  case'welcome':Object.assign(names,m.names||{});if(m.catalog)setCat(m.catalog);setSug(m.sug);if(m.state?.url)applyState(m.state);break;
-  case'catalog':setCat(m.catalog);break;case'sug':setSug(m.sug);break;case'state':applyState(m);break;
+  case'welcome':Object.assign(names,m.names||{});if(m.catalog)setCat(m.catalog);setSug(m.sug);if(m.chat)drawChat(m.chat);if(m.state?.url)applyState(m.state);break;
+  case'catalog':setCat(m.catalog);break;case'sug':setSug(m.sug);break;case'chat':receiveChat(m.message);break;case'state':applyState(m);break;
   case'peers':Object.assign(names,m.names||{});peers=m.list;if(stream)callAll();break;
   case'stopshare':case'left':if(m.id!==myId){called.delete(m.id);dropTile(m.id)}break}}
 function parseM3U(t){const cats=[],ci={},si={};let pend=null;const at=(l,k)=>(l.match(new RegExp(k+'="([^"]*)"'))||[])[1]||'';
@@ -200,6 +225,27 @@ $('#share').onclick=async()=>{if(stream)return stopShare();
   stream.getVideoTracks()[0].onended=stopShare;tile('me',stream,'Você',true);$('#share').textContent='Parar';await quality();callAll()};
 function stopShare(){stream?.getTracks().forEach(t=>t.stop());stream=null;Object.values(calls).forEach(c=>c.close());calls={};called.clear();
   dropTile('me');send({t:'stopshare'});$('#share').textContent='Compartilhar tela'}
+
+// Chat de cinema em tela própria.
+const chatOverlay=$('#chatOverlay'),chatMessages=$('#chatMessages');
+let chatLog=[];
+function drawChat(items){
+ chatLog=Array.isArray(items)?items.slice(-100):chatLog;chatMessages.replaceChildren();
+ if(!chatLog.length){chatMessages.append(h('div',{className:'chat-empty',textContent:'Nenhuma mensagem ainda.\nComece a conversa!'}));return}
+ chatLog.forEach(m=>{const card=h('article',{className:'chat-message'+(m.name===nick()?' mine':'')});
+  card.append(h('div',{className:'meta'},h('strong',{textContent:m.name||'Participante'}),h('span',{textContent:m.time||''})),h('div',{className:'body',textContent:m.text||''}));chatMessages.append(card)});
+ chatMessages.scrollTop=chatMessages.scrollHeight;
+}
+function receiveChat(m){if(!m||typeof m.text!=='string')return;chatLog.push(m);if(chatLog.length>100)chatLog.shift();drawChat(chatLog)}
+function openChat(){chatOverlay.hidden=false;document.body.style.overflow='hidden';$('#chatInput').focus()}
+function closeChat(){chatOverlay.hidden=true;document.body.style.overflow=''}
+$('#chatOpen').onclick=openChat;$('#chatClose').onclick=closeChat;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!chatOverlay.hidden)closeChat()});
+$('#chatForm').addEventListener('submit',e=>{e.preventDefault();const text=$('#chatInput').value.trim();if(!text)return;
+ const message={name:nick(),text:text.slice(0,500),time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+ send({t:'chat',message});$('#chatInput').value='';
+});
+
 // ---- Cinema
 function load(url){if(lastUrl===url)return;lastUrl=url;hls?.destroy();hls=null;
   if(/\.m3u8/i.test(url)&&window.Hls&&Hls.isSupported()){hls=new Hls();hls.loadSource(url);hls.attachMedia(V)}else V.src=url}
@@ -228,8 +274,7 @@ function renderCat(){const box=$('#cats');box.replaceChildren();const q=$('#q').
     box.append(h('h3',{textContent:`${c.name} (${items.length})`}),row)})}
 function showEps(i){const b=$('#eps');b.replaceChildren(h('h3',{textContent:i.title}),...i.episodes.map(e=>h('button',{className:'ep g',textContent:e.title,onclick:()=>pick(`${i.title} ${e.title}`,e.url)})))}
 // ---- App
-let dp;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e});
-$('#install').onclick=()=>dp?dp.prompt():toast('Menu do navegador → Instalar app / Adicionar à tela inicial');
+
 $('#rustapp').onclick=()=>open('https://github.com/zynxamigo/friendcine/releases','_blank');
 if(/iphone|ipad/i.test(navigator.userAgent))$('#ios').hidden=false;
 navigator.serviceWorker?.register('sw.js');
