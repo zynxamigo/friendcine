@@ -5,35 +5,16 @@ on:
 permissions:
   contents: write
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - { os: ubuntu-latest, bin: friendcine, name: friendcine-linux }
-          - { os: windows-latest, bin: friendcine.exe, name: friendcine-windows.exe }
-          - { os: macos-latest, bin: friendcine, name: friendcine-macos }
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cargo build --release
-      - run: cp target/release/${{ matrix.bin }} ${{ matrix.name }}
-        shell: bash
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ matrix.name }}
-
-  windows-installer:
+  windows-desktop:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo build --release
-      - name: Install Inno Setup
-        run: choco install innosetup --no-progress -y
-      - name: Build FriendCine Setup
-        run: iscc installer/friendcine.iss
-      - name: Upload Windows installer to release
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2" --locked
+      - name: Build Windows desktop installer
+        run: cargo tauri build --bundles nsis
+      - name: Publish installer
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/FriendCine-Setup.exe
+          files: target/release/bundle/nsis/*.exe
