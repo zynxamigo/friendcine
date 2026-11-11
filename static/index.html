@@ -80,7 +80,7 @@ main{height:calc(100% - 62px);overflow:auto}
 .member-info{margin-top:22px;padding:12px;background:#1c1b24;border:1px solid #302e3a;border-radius:10px;font-size:11px;color:var(--muted);line-height:1.5}
 .ho{display:none}.host .ho{display:revert}.host .vo{display:none}
 #toast{position:fixed;z-index:10;bottom:22px;left:50%;transform:translateX(-50%);background:#292632;border:1px solid #494354;box-shadow:0 10px 35px #0008;padding:11px 17px;border-radius:10px;font-size:12px}
-[hidden]{display:none!important}
+[hidden]{display:none!important}#room[hidden],#home[hidden],#p1[hidden],#p2[hidden],#noshare[hidden]{display:none!important}.side-channel.on,.side-channel.active{background:#302a49;color:#d8ceff}.side-channel.g{background:transparent;color:#aaa7b7}
 @media(max-width:1000px){#room{grid-template-columns:205px minmax(0,1fr)}.member-rail{display:none}.brand{min-width:190px}}
 @media(max-width:680px){body{overflow:auto}header{height:56px;padding:0 13px}.brand{min-width:0;font-size:16px}.brand small{display:none}.header-actions #install{display:none}main{height:calc(100% - 56px)}#home{grid-template-columns:1fr;padding:45px 18px;gap:28px}.hero h1{font-size:42px}.hero p{font-size:14px}#room{height:auto;min-height:calc(100vh - 56px);display:flex;flex-direction:column}.server-rail{border:0}.room-head{height:48px}.side-scroll{display:flex;gap:5px;padding:7px 10px;overflow-x:auto}.side-label,.side-note,.side-profile{display:none}.side-channel{width:auto;white-space:nowrap;margin:0;padding:8px 11px}.stage-top{height:58px;padding:0 12px}.stage-content{padding:12px}.stage-toolbar .hint{display:none}.screen-frame{min-height:260px;height:48vh}#grid video{max-height:45vh}.stage-bottom{padding:10px}.stage-bottom button{flex:1}.card{flex-basis:112px}.card img,.card .ph{width:112px;height:156px}.tabs button{padding:7px 9px}}
 </style>
@@ -117,7 +117,7 @@ main{height:calc(100% - 62px);overflow:auto}
       <button class="side-channel" id="t2"><span class="ch-icon">▶</span> Sala de cinema</button>
       <div class="side-note">Escolha um canal para começar. O anfitrião controla a sessão de cinema.</div>
     </div>
-    <div class="side-profile"><div class="avatar">FC</div><div class="profile-copy"><strong id="profile-name">Participante</strong><small><span class="online"></span> Conectado</small></div><button class="iconbtn" title="Configurações">⚙</button></div>
+    <div class="side-profile"><div class="avatar">FC</div><div class="profile-copy"><input id="nick" placeholder="Seu nome" value="Você" aria-label="Seu nome" style="width:100%;padding:7px 8px;font-size:11px"><small><span class="online"></span> Conectado</small></div></div>
   </aside>
   <section class="main-stage">
     <div class="stage-top"><div><div class="stage-title" id="channel-title">Compartilhar tela</div><div class="stage-sub" id="channel-sub">Compartilhe uma janela, aplicativo ou tela inteira</div></div><div class="spacer"></div><div class="tabs"><button id="tab-screen" class="on" type="button">▣ Tela</button><button id="tab-cinema" type="button">▶ Cinema</button></div></div>
