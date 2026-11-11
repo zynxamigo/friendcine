@@ -1,0 +1,24 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - { os: ubuntu-latest, bin: friendcine, name: friendcine-linux }
+          - { os: windows-latest, bin: friendcine.exe, name: friendcine-windows.exe }
+          - { os: macos-latest, bin: friendcine, name: friendcine-macos }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release
+      - run: cp target/release/${{ matrix.bin }} ${{ matrix.name }}
+        shell: bash
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.name }}
