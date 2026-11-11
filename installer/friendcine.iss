@@ -13,7 +13,6 @@ DefaultGroupName=FriendCine
 DisableProgramGroupPage=yes
 OutputDir=..\dist
 OutputBaseFilename=FriendCine-Setup
-SetupIconFile=..\static\icon.svg
 UninstallDisplayIcon={app}\{#AppExeName}
 ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=lowest
