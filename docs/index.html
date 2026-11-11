@@ -102,6 +102,9 @@ main{height:calc(100% - 62px);overflow:auto}
 .download-link:hover{background:#3b3159}
 @media(max-width:760px){.chat-main{grid-template-columns:1fr}.chat-context{display:none}.chat-panel{border-left:0}.chat-top{padding:0 13px}}
 
+/* Screen share is a live surface, not a media player. */
+#grid video{pointer-events:none;user-select:none;-webkit-user-select:none;cursor:default}
+#grid figure{cursor:default}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 </head>
@@ -212,7 +215,7 @@ $('#join').onclick=()=>{const v=$('#code').value.trim().split('#').pop();if(v)en
 $('#copy').onclick=()=>navigator.clipboard?.writeText(location.href).then(()=>toast('Link copiado'));
 for(const [a,b,c] of [['t1','p1','t2'],['t2','p2','t1']])$('#'+a).onclick=()=>{$('#'+b).hidden=false;$('#'+(b=='p1'?'p2':'p1')).hidden=true;$('#'+a).className='on';$('#'+c).className='g'};
 // ---- Tela (todos podem compartilhar)
-function tile(id,ms,label,muted){let f=$('#v'+id);if(!f){f=h('figure',{id:'v'+id},h('video',{autoplay:true,playsInline:true,controls:true,muted}),h('figcaption'));$('#grid').append(f)}
+function tile(id,ms,label,muted){let f=$('#v'+id);if(!f){f=h('figure',{id:'v'+id},h('video',{autoplay:true,playsInline:true,controls:false,muted,disablePictureInPicture:true,disableRemotePlayback:true,tabIndex:-1,ariaLabel:'Visualização da tela compartilhada'}),h('figcaption'));$('#grid').append(f)}
   f.firstChild.srcObject=ms;f.lastChild.textContent=label;$('#noshare').hidden=true;f.firstChild.play().catch(()=>{})}
 function dropTile(id){$('#v'+id)?.remove();if(!$('#grid').children.length)$('#noshare').hidden=false}
 function callAll(){peers.forEach(id=>{if(id===myId||called.has(id))return;called.add(id);calls[id]=peer.call(id,stream,{metadata:{name:nick()}});setTimeout(quality,800)})}
