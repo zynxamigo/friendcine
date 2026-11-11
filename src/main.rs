@@ -21,6 +21,7 @@ struct Room {
     catalog: Value,
     state: Value,
     sug: Vec<Value>,
+    chat: Vec<Value>,
 }
 
 #[derive(Clone, Default)]
@@ -80,7 +81,7 @@ async fn handle(app: &App, room: &str, id: u64, tx: &Tx, v: Value) {
             r.peers.insert(id, tx.clone());
             let host = r.host == Some(id);
             send(tx, json!({"t":"welcome","id":id,"host":host,"hostId":r.host,"peers":others,
-                "catalog":r.catalog,"state":r.state,"sug":r.sug}));
+                "catalog":r.catalog,"state":r.state,"sug":r.sug,"chat":r.chat}));
             broadcast(r, Some(id), json!({"t":"joined","id":id,"host":host}));
         }
         "sig" => {
@@ -96,6 +97,16 @@ async fn handle(app: &App, room: &str, id: u64, tx: &Tx, v: Value) {
         "state" if is_host => {
             r.state = v.clone();
             broadcast(r, Some(id), v);
+        }
+        "chat" => {
+            let mut message = v["message"].clone();
+            if let Some(text) = message["text"].as_str() {
+                let clipped: String = text.chars().take(500).collect();
+                message["text"] = Value::String(clipped);
+                r.chat.push(message.clone());
+                if r.chat.len() > 100 { r.chat.remove(0); }
+                broadcast(r, None, json!({"t":"chat","message":message}));
+            }
         }
         "suggest" => {
             let cut = |k: &str| v[k].as_str().unwrap_or("").chars().take(300).collect::<String>();
