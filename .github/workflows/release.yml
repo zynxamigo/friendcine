@@ -22,3 +22,18 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: ${{ matrix.name }}
+
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+      - name: Build FriendCine Setup
+        run: iscc installer/friendcine.iss
+      - name: Upload Windows installer to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/FriendCine-Setup.exe
