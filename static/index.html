@@ -102,6 +102,9 @@ main{height:calc(100% - 62px);overflow:auto}
 .download-link:hover{background:#3b3159}
 @media(max-width:760px){.chat-main{grid-template-columns:1fr}.chat-context{display:none}.chat-panel{border-left:0}.chat-top{padding:0 13px}}
 
+/* Screen share is a live surface, not a media player. */
+#grid video{pointer-events:none;user-select:none;-webkit-user-select:none;cursor:default}
+#grid figure{cursor:default}
 </style>
 </head>
 <body>
@@ -187,7 +190,7 @@ function connect(){
     case'sig':onSig(m);break;case'chat':receiveChat(m.message);break;case'catalog':setCat(m.catalog);break;case'sug':setSug(m.sug);break;case'state':applyState(m);break}}}
 // ---- WebRTC (todos podem compartilhar; 'o'=conexão que envio, 'i'=conexão que recebo)
 const names={};
-function tile(id,ms,label,muted){let f=$('#v'+id);if(!f){f=h('figure',{id:'v'+id},h('video',{autoplay:true,playsInline:true,controls:true,muted}),h('figcaption'));$('#grid').append(f)}
+function tile(id,ms,label,muted){let f=$('#v'+id);if(!f){f=h('figure',{id:'v'+id},h('video',{autoplay:true,playsInline:true,controls:false,muted,disablePictureInPicture:true,disableRemotePlayback:true,tabIndex:-1,ariaLabel:'Visualização da tela compartilhada'}),h('figcaption'));$('#grid').append(f)}
   f.firstChild.srcObject=ms;f.lastChild.textContent=label;$('#noshare').hidden=true;f.firstChild.play().catch(()=>{})}
 function dropTile(id){$('#v'+id)?.remove();if(!$('#grid').children.length)$('#noshare').hidden=false}
 function mkpc(key,id){pcs[key]?.close();const pc=new RTCPeerConnection(ICE);pcs[key]=pc;const k=key[0];
