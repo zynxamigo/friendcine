@@ -1,49 +1,176 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>FriendCine</title>
-<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0e0b1a">
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FriendCine — salas para assistir juntos</title>
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg">
+<meta name="theme-color" content="#101014"><meta name="description" content="Compartilhe sua tela e curta um cinema com seus amigos.">
 <style>
-:root{--bg:#0e0b1a;--card:#1a1530;--ac:#7c5cff;--tx:#eee;--mu:#9a93b8}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px system-ui,sans-serif}
-button,input,select{font:inherit;border-radius:10px;border:1px solid #3a3260;background:var(--card);color:var(--tx);padding:9px 12px}
-button{background:var(--ac);border:0;cursor:pointer}button.g{background:var(--card);border:1px solid #3a3260}
-header{display:flex;gap:8px;align-items:center;padding:10px 14px;flex-wrap:wrap}header b{font-size:20px;flex:1}
-main{max-width:1000px;margin:auto;padding:0 14px 40px}.box{background:var(--card);border-radius:14px;padding:14px;margin:12px 0}
-.home{text-align:center;padding-top:8vh}.home input{margin:8px 4px}
-video{width:100%;background:#000;border-radius:12px;max-height:70vh}
-.tabs{display:flex;gap:8px}.tabs button{flex:1}.tabs .on{outline:2px solid #fff}
-.bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}
-.row{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px}.card{flex:0 0 120px;cursor:pointer}
-.card img,.card .ph{width:120px;height:170px;object-fit:cover;border-radius:10px;background:#2a2350;display:block}
-.card span{font-size:12px;display:block;margin-top:4px}h3{margin:14px 0 6px}small,.mu{color:var(--mu)}
+:root{color-scheme:dark;--bg:#101014;--panel:#17171e;--panel2:#1e1e27;--panel3:#252530;--line:#30303c;--text:#f4f2f8;--muted:#9996a8;--purple:#8b70ff;--purple2:#7054e8;--green:#3ecf91;--red:#ed6678;--radius:13px}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:var(--bg);color:var(--text);font:14px Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+button,input,select{font:inherit;color:inherit}button{border:0;cursor:pointer;transition:background .18s,transform .18s}button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+input,select{background:#111117;border:1px solid var(--line);border-radius:9px;padding:11px 12px;min-width:0}input::placeholder{color:#777486}
+button.primary{background:var(--purple);color:white;border-radius:9px;padding:11px 16px;font-weight:650}button.primary:hover{background:var(--purple2)}
+button.ghost{background:var(--panel3);border:1px solid var(--line);border-radius:9px;padding:10px 13px;color:#e9e6f3}button.ghost:hover{background:#30303d}
+button.iconbtn{width:36px;height:36px;padding:0;display:grid;place-items:center;background:transparent;color:var(--muted);border-radius:9px;font-size:17px}button.iconbtn:hover{background:var(--panel3);color:white}
+header{height:62px;display:flex;align-items:center;gap:14px;padding:0 22px;background:#131319;border-bottom:1px solid var(--line);position:relative;z-index:3}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.5px;font-size:18px;min-width:230px}.brandmark{width:32px;height:32px;border-radius:10px;background:linear-gradient(145deg,#a18aff,#6745df);display:grid;place-items:center;box-shadow:0 5px 18px #7555ed44;font-size:17px}
+.brand small{display:block;font-size:10px;color:var(--muted);font-weight:500;letter-spacing:.3px;margin-top:1px}
+.header-spacer{flex:1}.header-actions{display:flex;align-items:center;gap:8px}.online{width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;box-shadow:0 0 10px #3ecf9166}
+main{height:calc(100% - 62px);overflow:auto}
+#home{max-width:1100px;margin:0 auto;padding:9vh 28px 50px;display:grid;grid-template-columns:1.1fr .9fr;gap:7vw;align-items:center;min-height:100%}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid #40365f;background:#211c31;color:#c9bcff;padding:7px 11px;border-radius:30px;font-size:12px;font-weight:650}
+.hero h1{font-size:clamp(38px,5vw,64px);line-height:1.02;letter-spacing:-2.8px;margin:22px 0 18px}.hero h1 span{color:#a38cff}
+.hero p{font-size:16px;line-height:1.7;color:var(--muted);max-width:480px}
+.home-card{background:linear-gradient(160deg,#20202a,#17171e);border:1px solid #343341;border-radius:19px;padding:25px;box-shadow:0 24px 80px #0005}
+.home-card h2{font-size:19px;margin:0 0 6px}.home-card>p{margin:0 0 22px;color:var(--muted);line-height:1.5}
+.field-label{font-size:11px;color:#aaa6b9;text-transform:uppercase;letter-spacing:1px;font-weight:750;display:block;margin:17px 0 8px}
+.action-row{display:flex;gap:8px}.action-row>*{flex:1}.home-card .full{width:100%;margin-top:10px}
+.home-foot{display:flex;gap:17px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:22px}.home-foot span{display:flex;align-items:center;gap:6px}
+#room{height:100%;display:grid;grid-template-columns:238px minmax(0,1fr) 230px;min-height:0}
+.server-rail{background:#14141a;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.room-head{height:64px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-weight:750}
+.room-code{font-size:10px;color:var(--muted);font-weight:500;margin-top:3px}
+.side-scroll{padding:17px 11px;overflow:auto;flex:1}.side-label{font-size:10px;letter-spacing:1.2px;color:#777486;font-weight:800;padding:8px 9px 9px}
+.side-channel{width:100%;display:flex;align-items:center;gap:10px;text-align:left;padding:10px 11px;border-radius:8px;background:transparent;color:#aaa7b7;margin:2px 0}
+.side-channel:hover{background:#22222c;color:#fff}.side-channel.active{background:#302a49;color:#d8ceff}.side-channel .ch-icon{font-size:16px;width:19px;text-align:center}
+.side-note{font-size:11px;color:#777486;padding:13px 10px;line-height:1.55}
+.side-profile{border-top:1px solid var(--line);padding:13px;display:flex;align-items:center;gap:10px;background:#111116}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#927aff,#5340b8);font-weight:800;color:white;flex:none}
+.profile-copy{min-width:0;flex:1}.profile-copy strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.profile-copy small{font-size:10px;color:var(--muted)}
+.main-stage{min-width:0;min-height:0;display:flex;flex-direction:column;background:#101015}
+.stage-top{height:64px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid var(--line)}
+.stage-title{font-weight:750;font-size:14px}.stage-sub{font-size:11px;color:var(--muted);margin-top:3px}.stage-top .spacer{flex:1}
+.tabs{display:flex;gap:5px;background:#191920;padding:4px;border:1px solid #292934;border-radius:10px}
+.tabs button{background:transparent;color:var(--muted);border-radius:7px;padding:8px 13px;font-size:12px;font-weight:700}.tabs button.on{background:#37304f;color:#e1d9ff}
+.stage-content{padding:22px;overflow:auto;flex:1;min-height:0}
+#p1,#p2{max-width:1200px;margin:0 auto}
+.stage-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.stage-toolbar .hint{font-size:11px;color:var(--muted);margin-left:auto}
+.screen-frame{background:#09090d;border:1px solid #353541;border-radius:15px;min-height:360px;height:min(66vh,700px);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+#grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px;padding:8px;align-content:center}
+#grid figure{margin:0;min-width:0;position:relative;background:#17171e;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:180px}
+#grid video{width:100%;height:100%;min-height:180px;max-height:calc(66vh - 50px);object-fit:contain;background:#08080b;flex:1}
+#grid figcaption{padding:9px 12px;background:#1b1b23;color:#d9d6e2;font-size:11px}
+#noshare{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);gap:9px;padding:20px}
+.empty-icon{width:62px;height:62px;border-radius:18px;background:#242132;color:#b9aaff;display:grid;place-items:center;font-size:27px}
+.empty-title{color:#f0edf7;font-weight:750;font-size:15px}.empty-copy{font-size:12px;max-width:310px;line-height:1.5}
+.stage-bottom{display:flex;justify-content:center;gap:10px;padding:15px;border-top:1px solid var(--line);background:#14141a}
+#p2 .cinema-player{background:#08080c;border:1px solid #343440;border-radius:14px;overflow:hidden;margin-bottom:18px}
+#ptitle{font-size:14px;font-weight:750;padding:14px 16px;margin:0;background:#1b1b23}
+#vid{width:100%;max-height:58vh;aspect-ratio:16/9;display:block;background:#050507}
+.cinema-controls{padding:10px 14px;display:flex;align-items:center;gap:8px;border-top:1px solid #292934}
+.cinema-controls small{color:var(--muted);font-size:11px}
+.library-panel{background:#191920;border:1px solid #30303b;border-radius:13px;padding:16px;margin:14px 0}
+.library-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;font-weight:750}
+#q{width:100%;margin-bottom:12px}
+#cats h3{font-size:13px;margin:22px 0 10px;color:#e8e4f2}
+.row{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 12px}
+.card{flex:0 0 132px;cursor:pointer;min-width:0}
+.card img,.card .ph{width:132px;height:184px;object-fit:cover;border-radius:9px;background:linear-gradient(145deg,#302b42,#1c1b24);display:block;border:1px solid #383542}
+.card span{display:block;font-size:11px;line-height:1.4;margin-top:7px;color:#d9d6e2}
+.card:hover img,.card:hover .ph{outline:2px solid var(--purple);transform:translateY(-2px)}
+.ep{margin:4px}
+#eps{margin:10px 0}
+.member-rail{background:#14141a;border-left:1px solid var(--line);padding:18px 13px;overflow:auto}
+.member-heading{font-size:10px;color:#858194;letter-spacing:1px;font-weight:800;margin:8px 7px 13px}
+.member{display:flex;align-items:center;gap:9px;padding:8px;border-radius:8px}.member .avatar{width:29px;height:29px;font-size:11px}.member strong{font-size:11px}.member small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.member-status{width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:auto}
+.member-info{margin-top:22px;padding:12px;background:#1c1b24;border:1px solid #302e3a;border-radius:10px;font-size:11px;color:var(--muted);line-height:1.5}
 .ho{display:none}.host .ho{display:revert}.host .vo{display:none}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:20px}
-#grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}#grid figure{margin:0}#grid figcaption{font-size:12px;color:var(--mu)}.ep{display:inline-block;margin:3px}[hidden]{display:none!important}
-</style></head><body>
-<header><b>🎬 FriendCine</b><button id="install" class="g">⬇ Baixar app</button></header>
+#toast{position:fixed;z-index:10;bottom:22px;left:50%;transform:translateX(-50%);background:#292632;border:1px solid #494354;box-shadow:0 10px 35px #0008;padding:11px 17px;border-radius:10px;font-size:12px}
+[hidden]{display:none!important}#room[hidden],#home[hidden],#p1[hidden],#p2[hidden],#noshare[hidden]{display:none!important}.side-channel.on,.side-channel.active{background:#302a49;color:#d8ceff}.side-channel.g{background:transparent;color:#aaa7b7}
+@media(max-width:1000px){#room{grid-template-columns:205px minmax(0,1fr)}.member-rail{display:none}.brand{min-width:190px}}
+@media(max-width:680px){body{overflow:auto}header{height:56px;padding:0 13px}.brand{min-width:0;font-size:16px}.brand small{display:none}.header-actions #install{display:none}main{height:calc(100% - 56px)}#home{grid-template-columns:1fr;padding:45px 18px;gap:28px}.hero h1{font-size:42px}.hero p{font-size:14px}#room{height:auto;min-height:calc(100vh - 56px);display:flex;flex-direction:column}.server-rail{border:0}.room-head{height:48px}.side-scroll{display:flex;gap:5px;padding:7px 10px;overflow-x:auto}.side-label,.side-note,.side-profile{display:none}.side-channel{width:auto;white-space:nowrap;margin:0;padding:8px 11px}.stage-top{height:58px;padding:0 12px}.stage-content{padding:12px}.stage-toolbar .hint{display:none}.screen-frame{min-height:260px;height:48vh}#grid video{max-height:45vh}.stage-bottom{padding:10px}.stage-bottom button{flex:1}.card{flex-basis:112px}.card img,.card .ph{width:112px;height:156px}.tabs button{padding:7px 9px}}
+
+/* Full-screen cinema chat */
+#chatOverlay{position:fixed;inset:0;z-index:40;background:#101015;display:grid;grid-template-rows:62px minmax(0,1fr)}
+#chatOverlay[hidden]{display:none!important}.chat-top{display:flex;align-items:center;gap:12px;padding:0 22px;background:#15151c;border-bottom:1px solid var(--line)}
+.chat-top strong{font-size:15px}.chat-top small{color:var(--muted);font-size:11px}
+.chat-main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 360px}
+.chat-context{padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;background:radial-gradient(ellipse at center,#201b32 0%,#101015 65%)}
+.chat-context p{max-width:420px;color:var(--muted);line-height:1.65}
+.chat-panel{min-height:0;display:flex;flex-direction:column;border-left:1px solid var(--line);background:#17171e}
+.chat-panel-head{padding:18px;border-bottom:1px solid var(--line);font-weight:750}.chat-panel-head small{display:block;color:var(--muted);font-weight:400;margin-top:4px}
+#chatMessages{flex:1;min-height:0;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:11px}
+.chat-message{background:#22222c;border:1px solid #30303c;border-radius:12px;padding:10px 12px;overflow-wrap:anywhere}
+.chat-message.mine{background:#302949;border-color:#4b3d72}.chat-message .meta{font-size:10px;color:#aaa6b9;margin-bottom:5px;display:flex;gap:8px}
+.chat-message .body{font-size:13px;line-height:1.5;white-space:pre-wrap}.chat-empty{margin:auto;color:var(--muted);font-size:12px;text-align:center;line-height:1.6}
+.chat-compose{padding:13px;border-top:1px solid var(--line);display:flex;gap:8px}#chatInput{flex:1;min-width:0}
+.download-link{display:inline-flex;align-items:center;gap:7px;text-decoration:none;background:#302949;border:1px solid #514277;color:#e9e2ff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700}
+.download-link:hover{background:#3b3159}
+@media(max-width:760px){.chat-main{grid-template-columns:1fr}.chat-context{display:none}.chat-panel{border-left:0}.chat-top{padding:0 13px}}
+
+/* Screen share is a live surface, not a media player. */
+#grid video{pointer-events:none;user-select:none;-webkit-user-select:none;cursor:default}
+#grid figure{cursor:default}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="brandmark">◈</div><div>FriendCine<small>ASSISTA JUNTO. COMPARTILHE TUDO.</small></div></div>
+  <div class="header-spacer"></div>
+  <div class="header-actions"><span class="online"></span><small style="color:var(--muted)">Salas entre amigos</small><a class="download-link" href="https://github.com/zynxamigo/friendcine/actions/runs/43083825637" target="_blank" rel="noopener">↓ Baixar instalador Windows</a></div>
+</header>
 <main>
-<section id="home" class="home"><h1>Cinema e tela com os amigos</h1><p class="mu">Salas leves, sem cadastro.</p>
-<button id="create">Criar sala</button><br><input id="code" placeholder="Código ou link da sala"><button id="join" class="g">Entrar</button>
-<p id="ios" class="mu" hidden>No iPhone: Compartilhar → Adicionar à Tela de Início.</p></section>
+<section id="home">
+  <div class="hero">
+    <div class="hero-kicker"><span class="online"></span> SEU ESPAÇO, SUA GALERA</div>
+    <h1>Mais perto,<br>mesmo <span>de longe.</span></h1>
+    <p>Crie uma sala, compartilhe sua tela ou transforme a noite em cinema. Tudo em um só lugar, sem complicação.</p>
+    <div class="home-foot"><span>▣ Compartilhamento de tela</span><span>▶ Cinema sincronizado</span><span>⌁ Salas privadas por código</span></div>
+  </div>
+  <div class="home-card">
+    <h2>Entrar no FriendCine</h2><p>Crie seu espaço ou entre em uma sala que já existe.</p>
+    <span class="field-label">Começar uma sala nova</span>
+    <button id="create" class="primary full">＋ Criar minha sala</button>
+    <span class="field-label">Já tem um convite?</span>
+    <div class="action-row"><input id="code" placeholder="Cole o código ou link" aria-label="Código ou link da sala"><button id="join" class="ghost">Entrar →</button></div>
+    <div class="home-foot"><span>● Sem cadastro</span><span>● Grátis para começar</span></div>
+  </div>
+</section>
 <section id="room" hidden>
-<div class="bar"><span class="mu" id="rid"></span><button class="g" id="copy">Copiar link</button><input id="nick" placeholder="Seu nome" size="10"><span class="ho">👑 Você é o dono</span><span class="vo mu">👀 Espectador</span></div>
-<div class="tabs"><button id="t1" class="on">🖥 Tela</button><button id="t2" class="g">🍿 Cinema</button></div>
-<div id="p1" class="box"><div class="bar"><button id="share">Compartilhar tela</button>
-<select id="res"><option value="480">480p</option><option value="720" selected>720p</option><option value="1080">1080p</option></select>
-<select id="fps"><option>15</option><option selected>30</option><option>60</option></select></div>
-<div id="grid"></div><p id="noshare" class="mu">Ninguém está compartilhando. Qualquer pessoa da sala pode clicar em Compartilhar tela!</p></div>
-<div id="p2" hidden>
-<div class="box"><h3 style="margin:0" id="ptitle">Nada tocando</h3><video id="vid" playsinline></video>
-<div class="bar vo"><button id="unmute" class="g">▶ Ativar vídeo/som</button><small>Só o dono controla play/pause.</small></div></div>
-<div class="box ho"><b>Sua lista M3U</b><div class="bar"><input type="file" id="mfile" accept=".m3u,.m3u8,.txt"><input id="url" placeholder="ou URL da M3U"><button id="murl">Carregar</button></div></div>
-<div class="box"><b>💡 Sugestões</b> <button class="g ho" id="clr">Limpar</button><div id="sug" class="mu">Nenhuma</div></div>
-<div class="box"><input id="q" placeholder="Buscar filme ou série…" style="width:100%"><div id="eps"></div><div id="cats" class="mu">Aguardando o dono carregar a lista.</div></div>
-</div></section></main><div id="toast" hidden></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+  <aside class="server-rail">
+    <div class="room-head"><div><div>Minha sala</div><div class="room-code" id="rid">Sala</div></div><button id="copy" class="iconbtn" title="Copiar convite">▢</button></div>
+    <div class="side-scroll">
+      <div class="side-label">CANAIS DA SALA</div>
+      <button class="side-channel active" id="t1"><span class="ch-icon">▣</span> Compartilhar tela</button>
+      <button class="side-channel" id="t2"><span class="ch-icon">▶</span> Sala de cinema</button>
+      <div class="side-note">Escolha um canal para começar. O anfitrião controla a sessão de cinema.</div>
+    </div>
+    <div class="side-profile"><div class="avatar">FC</div><div class="profile-copy"><input id="nick" placeholder="Seu nome" value="Você" aria-label="Seu nome" style="width:100%;padding:7px 8px;font-size:11px"><small><span class="online"></span> Conectado</small></div></div>
+  </aside>
+  <section class="main-stage">
+    <div class="stage-top"><div><div class="stage-title" id="channel-title">Compartilhar tela</div><div class="stage-sub" id="channel-sub">Compartilhe uma janela, aplicativo ou tela inteira</div></div><div class="spacer"></div><div class="tabs"><button id="tab-screen" class="on" type="button">▣ Tela</button><button id="tab-cinema" type="button">▶ Cinema</button></div></div>
+    <div class="stage-content">
+      <div id="p1">
+        <div class="stage-toolbar"><button id="share" class="primary">▣ Compartilhar tela</button><select id="res" aria-label="Resolução"><option value="480">480p</option><option value="720" selected>720p</option><option value="1080">1080p</option></select><select id="fps" aria-label="Quadros por segundo"><option>15</option><option selected>30</option><option>60</option></select><span class="hint">Ajuste a qualidade da transmissão</span></div>
+        <div class="screen-frame"><div id="grid"></div><div id="noshare"><div class="empty-icon">▣</div><div class="empty-title">Sua tela ainda não está sendo compartilhada</div><div class="empty-copy">Quando alguém começar a transmitir, a tela aparecerá aqui. Clique em compartilhar para começar.</div></div></div>
+      </div>
+      <div id="p2" hidden>
+        <div class="cinema-player"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:#1b1b23"><h3 id="ptitle">Nenhum título em reprodução</h3><button id="chatOpen" class="ghost" type="button" style="margin-right:12px">💬 Abrir chat</button></div><video id="vid" playsinline></video><div class="cinema-controls"><div class="ho"><input type="file" id="mfile" accept=".m3u,.m3u8,.txt" aria-label="Carregar lista M3U"><input id="url" placeholder="URL da lista M3U"><button id="murl" class="ghost">Carregar URL</button></div><div class="vo"><button id="unmute" class="ghost">▶ Ativar vídeo e som</button><small>O anfitrião controla a reprodução.</small></div></div></div>
+        <div class="library-panel"><div class="library-heading"><span>▤ Biblioteca da sala</span><span class="ho"><button id="clr" class="ghost">Limpar sugestões</button></span></div><div class="ho" style="color:var(--muted);font-size:11px;margin-bottom:10px">Carregue sua lista M3U para organizar filmes e séries.</div><input id="q" placeholder="⌕  Buscar no catálogo..." aria-label="Buscar no catálogo"><div id="eps"></div><div id="cats" style="color:var(--muted);font-size:12px">Aguardando o anfitrião carregar a lista.</div></div>
+        <div class="library-panel"><div class="library-heading">Sugestões dos participantes</div><div id="sug" style="color:var(--muted);font-size:12px">Nenhuma sugestão ainda.</div></div>
+      </div>
+    </div>
+    <div class="stage-bottom"><span class="vo" style="color:var(--muted);font-size:11px;align-self:center">Você está participando como espectador</span><span class="ho" style="color:var(--muted);font-size:11px;align-self:center">Você é o anfitrião desta sala</span></div>
+  </section>
+  <aside class="member-rail"><div class="member-heading">NA SALA</div><div class="member"><div class="avatar">FC</div><div><strong id="member-self">Você</strong><small>Anfitrião / participante</small></div><span class="member-status"></span></div><div class="member-info">Compartilhe o convite com seus amigos para eles entrarem nesta sala. A experiência funciona melhor com uma conexão estável.</div><div class="member-heading" style="margin-top:25px">DICA RÁPIDA</div><div style="font-size:11px;color:var(--muted);line-height:1.6;padding:0 7px">No canal de cinema, somente o anfitrião pode iniciar, pausar e controlar o conteúdo.</div></aside>
+</section>
+</main>
+
+<div id="chatOverlay" hidden aria-label="Chat da sala de cinema">
+ <div class="chat-top"><div><strong>💬 Chat do cinema</strong><br><small>Converse com quem está assistindo com você</small></div><div style="flex:1"></div><button id="chatClose" class="ghost" type="button">Voltar ao cinema ✕</button></div>
+ <div class="chat-main"><div class="chat-context"><div class="empty-icon">▶</div><strong>O cinema continua rolando</strong><p>O chat fica em uma tela própria, sem cobrir os controles do player. Feche esta tela para voltar ao filme.</p></div>
+ <section class="chat-panel"><div class="chat-panel-head">Mensagens da sala<small>Mensagens visíveis para todos os participantes conectados</small></div><div id="chatMessages" aria-live="polite"><div class="chat-empty">Nenhuma mensagem ainda.<br>Comece a conversa!</div></div><form id="chatForm" class="chat-compose"><input id="chatInput" maxlength="500" autocomplete="off" placeholder="Escreva uma mensagem..." aria-label="Mensagem do chat"><button class="primary" type="submit">Enviar</button></form></section></div>
+</div>
+<div id="toast" hidden></div>
 <script>
 const $=s=>document.querySelector(s),h=(t,a={},...k)=>{const e=document.createElement(t);Object.assign(e,a);e.append(...k);return e};
 const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.i);toast.i=setTimeout(()=>t.hidden=true,3000)};
 let ws,isHost=false,hostId=null,pcs={},peers=new Set(),stream=null,room='',cat=null,hls=null,lastUrl='',pending=null;
-const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'}]},V=$('#vid');
+const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'}]},V=$('#vid'),nick=()=>$('#nick').value||'Amigo';
 const send=o=>ws&&ws.readyState===1&&ws.send(JSON.stringify(o));
 function enter(r){room=r;location.hash=r;$('#home').hidden=true;$('#room').hidden=false;$('#rid').textContent=location.href;connect()}
 $('#create').onclick=()=>enter(Math.random().toString(36).slice(2,8));
@@ -57,13 +184,13 @@ function connect(){
   ws.onclose=()=>{toast('Reconectando…');setTimeout(connect,2000)};
   ws.onmessage=async e=>{const m=JSON.parse(e.data);switch(m.t){
     case'welcome':isHost=m.host;hostId=m.hostId;peers=new Set(m.peers);document.body.classList.toggle('host',isHost);V.controls=isHost;
-      if(m.catalog)setCat(m.catalog);setSug(m.sug);if(m.state&&m.state.url)applyState(m.state);break;
+      if(m.catalog)setCat(m.catalog);setSug(m.sug);if(m.chat)drawChat(m.chat);if(m.state&&m.state.url)applyState(m.state);break;
     case'joined':peers.add(m.id);if(m.host)hostId=m.id;if(stream)offerTo(m.id);break;
     case'left':case'stopshare':if(m.t==='left')peers.delete(m.id);for(const k of['i','o'])if(m.t==='left'||k==='i'){pcs[k+m.id]?.close();delete pcs[k+m.id]}dropTile(m.id);break;
-    case'sig':onSig(m);break;case'catalog':setCat(m.catalog);break;case'sug':setSug(m.sug);break;case'state':applyState(m);break}}}
+    case'sig':onSig(m);break;case'chat':receiveChat(m.message);break;case'catalog':setCat(m.catalog);break;case'sug':setSug(m.sug);break;case'state':applyState(m);break}}}
 // ---- WebRTC (todos podem compartilhar; 'o'=conexão que envio, 'i'=conexão que recebo)
 const names={};
-function tile(id,ms,label,muted){let f=$('#v'+id);if(!f){f=h('figure',{id:'v'+id},h('video',{autoplay:true,playsInline:true,controls:true,muted}),h('figcaption'));$('#grid').append(f)}
+function tile(id,ms,label,muted){let f=$('#v'+id);if(!f){f=h('figure',{id:'v'+id},h('video',{autoplay:true,playsInline:true,controls:false,muted,disablePictureInPicture:true,disableRemotePlayback:true,tabIndex:-1,ariaLabel:'Visualização da tela compartilhada'}),h('figcaption'));$('#grid').append(f)}
   f.firstChild.srcObject=ms;f.lastChild.textContent=label;$('#noshare').hidden=true;f.firstChild.play().catch(()=>{})}
 function dropTile(id){$('#v'+id)?.remove();if(!$('#grid').children.length)$('#noshare').hidden=false}
 function mkpc(key,id){pcs[key]?.close();const pc=new RTCPeerConnection(ICE);pcs[key]=pc;const k=key[0];
@@ -90,6 +217,27 @@ $('#share').onclick=async()=>{if(stream)return stopShare();
 function stopShare(){stream?.getTracks().forEach(t=>t.stop());stream=null;
   for(const k in pcs)if(k[0]==='o'){pcs[k].close();delete pcs[k]}
   dropTile('me');send({t:'stopshare'});$('#share').textContent='Compartilhar tela'}
+
+// Chat de cinema em tela própria.
+const chatOverlay=$('#chatOverlay'),chatMessages=$('#chatMessages');
+let chatLog=[];
+function drawChat(items){
+ chatLog=Array.isArray(items)?items.slice(-100):chatLog;chatMessages.replaceChildren();
+ if(!chatLog.length){chatMessages.append(h('div',{className:'chat-empty',textContent:'Nenhuma mensagem ainda.\nComece a conversa!'}));return}
+ chatLog.forEach(m=>{const card=h('article',{className:'chat-message'+(m.name===nick()?' mine':'')});
+  card.append(h('div',{className:'meta'},h('strong',{textContent:m.name||'Participante'}),h('span',{textContent:m.time||''})),h('div',{className:'body',textContent:m.text||''}));chatMessages.append(card)});
+ chatMessages.scrollTop=chatMessages.scrollHeight;
+}
+function receiveChat(m){if(!m||typeof m.text!=='string')return;chatLog.push(m);if(chatLog.length>100)chatLog.shift();drawChat(chatLog)}
+function openChat(){chatOverlay.hidden=false;document.body.style.overflow='hidden';$('#chatInput').focus()}
+function closeChat(){chatOverlay.hidden=true;document.body.style.overflow=''}
+$('#chatOpen').onclick=openChat;$('#chatClose').onclick=closeChat;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!chatOverlay.hidden)closeChat()});
+$('#chatForm').addEventListener('submit',e=>{e.preventDefault();const text=$('#chatInput').value.trim();if(!text)return;
+ const message={name:nick(),text:text.slice(0,500),time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+ send({t:'chat',message});$('#chatInput').value='';
+});
+
 // ---- Cinema
 function load(url){if(lastUrl===url)return;lastUrl=url;hls?.destroy();hls=null;
   if(/\.m3u8/i.test(url)&&window.Hls&&Hls.isSupported()){hls=new Hls();hls.loadSource(url);hls.attachMedia(V)}else V.src=url}
@@ -118,9 +266,35 @@ function renderCat(){const box=$('#cats');box.replaceChildren();const q=$('#q').
     box.append(h('h3',{textContent:`${c.name} (${items.length})`}),row)})}
 function showEps(i){const b=$('#eps');b.replaceChildren(h('h3',{textContent:i.title}),...i.episodes.map(e=>h('button',{className:'ep g',textContent:e.title,onclick:()=>pick(`${i.title} ${e.title}`,e.url)})))}
 // ---- App (PWA)
-let dp;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e});
-$('#install').onclick=()=>dp?dp.prompt():toast('Menu do navegador → Instalar app / Adicionar à tela inicial');
+
 if(/iphone|ipad/i.test(navigator.userAgent))$('#ios').hidden=false;
 navigator.serviceWorker?.register('/sw.js');
 if(location.hash.length>1)enter(location.hash.slice(1));
 </script></body></html>
+
+<script>
+const screenButton=document.querySelector('#tab-screen'),cinemaButton=document.querySelector('#tab-cinema');
+const screenChannel=document.querySelector('#t1'),cinemaChannel=document.querySelector('#t2');
+function setChannel(which){
+ const screen=which==='screen';
+ document.querySelector('#p1').hidden=!screen;document.querySelector('#p2').hidden=screen;
+ screenButton.classList.toggle('on',screen);cinemaButton.classList.toggle('on',!screen);
+ screenChannel.className=screen?'side-channel active':'side-channel';cinemaChannel.className=screen?'side-channel':'side-channel active';
+ document.querySelector('#channel-title').textContent=screen?'Compartilhar tela':'Sala de cinema';
+ document.querySelector('#channel-sub').textContent=screen?'Compartilhe uma janela, aplicativo ou tela inteira':'Escolha um título e assistam juntos';
+}
+screenButton.addEventListener('click',()=>setChannel('screen'));
+cinemaButton.addEventListener('click',()=>setChannel('cinema'));
+screenChannel.addEventListener('click',()=>setChannel('screen'));
+cinemaChannel.addEventListener('click',()=>setChannel('cinema'));
+document.querySelector('#nick').addEventListener('input',e=>{
+ document.querySelector('#member-self').textContent=e.target.value||'Você';
+});
+const roomObserver=new MutationObserver(()=>{
+ if(!document.querySelector('#room').hidden){
+   document.querySelector('#member-self').textContent=document.querySelector('#nick').value||'Você';
+ }
+});
+roomObserver.observe(document.querySelector('#room'),{attributes:true,attributeFilter:['hidden']});
+</script>
+</body></html>

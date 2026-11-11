@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FriendCine",
+  "version": "0.3.0",
+  "identifier": "com.friendcine.desktop",
+  "build": {
+    "frontendDist": "static"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "FriendCine",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 900,
+        "minHeight": 620,
+        "center": true,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' asset: http://asset.localhost http://127.0.0.1:* ws://127.0.0.1:* https: wss: data: blob:; img-src 'self' asset: http://asset.localhost https: data: blob:; media-src 'self' blob: data: https:; connect-src ipc: http://ipc.localhost http://127.0.0.1:* ws://127.0.0.1:* https: wss:;"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "displayLanguageSelector": false,
+        "languages": ["PortugueseBR"]
+      }
+    }
+  }
+}

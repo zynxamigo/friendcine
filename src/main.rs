@@ -21,6 +21,7 @@ struct Room {
     catalog: Value,
     state: Value,
     sug: Vec<Value>,
+    chat: Vec<Value>,
 }
 
 #[derive(Clone, Default)]
@@ -80,7 +81,7 @@ async fn handle(app: &App, room: &str, id: u64, tx: &Tx, v: Value) {
             r.peers.insert(id, tx.clone());
             let host = r.host == Some(id);
             send(tx, json!({"t":"welcome","id":id,"host":host,"hostId":r.host,"peers":others,
-                "catalog":r.catalog,"state":r.state,"sug":r.sug}));
+                "catalog":r.catalog,"state":r.state,"sug":r.sug,"chat":r.chat}));
             broadcast(r, Some(id), json!({"t":"joined","id":id,"host":host}));
         }
         "sig" => {
@@ -97,6 +98,16 @@ async fn handle(app: &App, room: &str, id: u64, tx: &Tx, v: Value) {
             r.state = v.clone();
             broadcast(r, Some(id), v);
         }
+        "chat" => {
+            let mut message = v["message"].clone();
+            if let Some(text) = message["text"].as_str() {
+                let clipped: String = text.chars().take(500).collect();
+                message["text"] = Value::String(clipped);
+                r.chat.push(message.clone());
+                if r.chat.len() > 100 { r.chat.remove(0); }
+                broadcast(r, None, json!({"t":"chat","message":message}));
+            }
+        }
         "suggest" => {
             let cut = |k: &str| v[k].as_str().unwrap_or("").chars().take(300).collect::<String>();
             r.sug.push(json!({"title":cut("title"),"url":cut("url"),"by":cut("by")}));
@@ -111,17 +122,43 @@ async fn handle(app: &App, room: &str, id: u64, tx: &Tx, v: Value) {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    let app = Router::new()
-        .route("/", get(|| async { ([(header::CONTENT_TYPE, "text/html; charset=utf-8")], include_str!("../static/index.html")) }))
-        .route("/manifest.webmanifest", get(|| async { ([(header::CONTENT_TYPE, "application/manifest+json")], include_str!("../static/manifest.webmanifest")) }))
-        .route("/sw.js", get(|| async { ([(header::CONTENT_TYPE, "text/javascript")], include_str!("../static/sw.js")) }))
-        .route("/icon.svg", get(|| async { ([(header::CONTENT_TYPE, "image/svg+xml")], include_str!("../static/icon.svg")) }))
-        .route("/ws/{room}", get(ws))
-        .with_state(App::default());
-    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".into());
-    let l = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
-    println!("FriendCine em http://localhost:{port}");
-    axum::serve(l, app).await.unwrap();
+fn main() {
+    tauri::Builder::default()
+        .setup(|app| {
+            let router = Router::new()
+                .route("/", get(|| async { ([(header::CONTENT_TYPE, "text/html; charset=utf-8")], include_str!("../static/index.html")) }))
+                .route("/manifest.webmanifest", get(|| async { ([(header::CONTENT_TYPE, "application/manifest+json")], include_str!("../static/manifest.webmanifest")) }))
+                .route("/sw.js", get(|| async { ([(header::CONTENT_TYPE, "text/javascript")], include_str!("../static/sw.js")) }))
+                .route("/icon.svg", get(|| async { ([(header::CONTENT_TYPE, "image/svg+xml")], include_str!("../static/icon.svg")) }))
+                .route("/ws/{room}", get(ws))
+                .with_state(App::default());
+
+            let listener = tauri::async_runtime::block_on(async {
+                tokio::net::TcpListener::bind("127.0.0.1:0").await
+            })?;
+            let port = listener.local_addr()?.port();
+            let address = format!("http://127.0.0.1:{port}");
+
+            tauri::async_runtime::spawn(async move {
+                if let Err(error) = axum::serve(listener, router).await {
+                    eprintln!("FriendCine server error: {error}");
+                }
+            });
+
+            tauri::WebviewWindowBuilder::new(
+                app,
+                "main",
+                tauri::WebviewUrl::External(address.parse()?)
+            )
+            .title("FriendCine")
+            .inner_size(1280.0, 820.0)
+            .min_inner_size(900.0, 620.0)
+            .center()
+            .resizable(true)
+            .build()?;
+
+            Ok(())
+        })
+        .run(tauri::generate_context!())
+        .expect("Erro ao iniciar FriendCine");
 }
