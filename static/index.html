@@ -240,12 +240,10 @@ cinemaButton.addEventListener('click',()=>setChannel('cinema'));
 screenChannel.addEventListener('click',()=>setChannel('screen'));
 cinemaChannel.addEventListener('click',()=>setChannel('cinema'));
 document.querySelector('#nick').addEventListener('input',e=>{
- document.querySelector('#profile-name').textContent=e.target.value||'Participante';
  document.querySelector('#member-self').textContent=e.target.value||'Você';
 });
 const roomObserver=new MutationObserver(()=>{
  if(!document.querySelector('#room').hidden){
-   document.querySelector('#profile-name').textContent=document.querySelector('#nick').value||'Participante';
    document.querySelector('#member-self').textContent=document.querySelector('#nick').value||'Você';
  }
 });
