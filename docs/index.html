@@ -1,0 +1,138 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>FriendCine</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg"><meta name="theme-color" content="#0e0b1a">
+<style>
+:root{--bg:#0e0b1a;--card:#1a1530;--ac:#7c5cff;--tx:#eee;--mu:#9a93b8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px system-ui,sans-serif}
+button,input,select{font:inherit;border-radius:10px;border:1px solid #3a3260;background:var(--card);color:var(--tx);padding:9px 12px}
+button{background:var(--ac);border:0;cursor:pointer}button.g{background:var(--card);border:1px solid #3a3260}
+header{display:flex;gap:8px;align-items:center;padding:10px 14px;flex-wrap:wrap}header b{font-size:20px;flex:1}
+main{max-width:1000px;margin:auto;padding:0 14px 40px}.box{background:var(--card);border-radius:14px;padding:14px;margin:12px 0}
+.home{text-align:center;padding-top:8vh}.home input{margin:8px 4px}
+video{width:100%;background:#000;border-radius:12px;max-height:70vh}
+.tabs{display:flex;gap:8px}.tabs button{flex:1}.tabs .on{outline:2px solid #fff}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}
+.row{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px}.card{flex:0 0 120px;cursor:pointer}
+.card img,.card .ph{width:120px;height:170px;object-fit:cover;border-radius:10px;background:#2a2350;display:block}
+.card span{font-size:12px;display:block;margin-top:4px}h3{margin:14px 0 6px}small,.mu{color:var(--mu)}
+.ho{display:none}.host .ho{display:revert}.host .vo{display:none}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#000c;padding:10px 16px;border-radius:20px}
+#grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}#grid figure{margin:0}#grid figcaption{font-size:12px;color:var(--mu)}.ep{display:inline-block;margin:3px}[hidden]{display:none!important}
+</style></head><body>
+<header><b>🎬 FriendCine</b><button id="install" class="g">📱 Instalar</button><button id="rustapp" class="g">💻 App Rust (PC)</button></header>
+<main>
+<section id="home" class="home"><h1>Cinema e tela com os amigos</h1><p class="mu">Salas leves, sem cadastro. A sala funciona enquanto o dono estiver com a aba aberta.</p>
+<button id="create">Criar sala</button><br><input id="code" placeholder="Código ou link da sala"><button id="join" class="g">Entrar</button>
+<p id="ios" class="mu" hidden>No iPhone: Compartilhar → Adicionar à Tela de Início.</p></section>
+<section id="room" hidden>
+<div class="bar"><span class="mu" id="rid"></span><button class="g" id="copy">Copiar link</button><input id="nick" placeholder="Seu nome" size="10"><span class="ho">👑 Você é o dono</span><span class="vo mu">👀 Espectador</span></div>
+<div class="tabs"><button id="t1" class="on">🖥 Tela</button><button id="t2" class="g">🍿 Cinema</button></div>
+<div id="p1" class="box"><div class="bar"><button id="share">Compartilhar tela</button>
+<select id="res"><option value="480">480p</option><option value="720" selected>720p</option><option value="1080">1080p</option></select>
+<select id="fps"><option>15</option><option selected>30</option><option>60</option></select></div>
+<div id="grid"></div><p id="noshare" class="mu">Ninguém está compartilhando. Qualquer pessoa da sala pode clicar em Compartilhar tela!</p></div>
+<div id="p2" hidden>
+<div class="box"><h3 style="margin:0" id="ptitle">Nada tocando</h3><video id="vid" playsinline></video>
+<div class="bar vo"><button id="unmute" class="g">▶ Ativar vídeo/som</button><small>Só o dono controla play/pause.</small></div></div>
+<div class="box ho"><b>Sua lista M3U</b><div class="bar"><input type="file" id="mfile" accept=".m3u,.m3u8,.txt"><input id="url" placeholder="ou URL da M3U"><button id="murl">Carregar</button></div></div>
+<div class="box"><b>💡 Sugestões</b> <button class="g ho" id="clr">Limpar</button><div id="sug" class="mu">Nenhuma</div></div>
+<div class="box"><input id="q" placeholder="Buscar filme ou série…" style="width:100%"><div id="eps"></div><div id="cats" class="mu">Aguardando o dono carregar a lista.</div></div>
+</div></section></main><div id="toast" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),h=(t,a={},...k)=>{const e=document.createElement(t);Object.assign(e,a);e.append(...k);return e};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.i);toast.i=setTimeout(()=>t.hidden=true,3500)};
+let peer,isHost=false,conns={},hostConn=null,myId='',peers=[],stream=null,room='',cat=null,hls=null,lastUrl='',pending=null,gstate={},sug=[],calls={};
+const names={},called=new Set(),V=$('#vid'),nick=()=>$('#nick').value||'Amigo';
+// ---- Sala: o navegador do dono é o "servidor" (PeerJS só faz a conexão inicial)
+function enter(r,host){room=r;location.hash=r;$('#home').hidden=true;$('#room').hidden=false;$('#rid').textContent=location.href;
+  isHost=host;if(host)localStorage['host'+r]='1';document.body.classList.toggle('host',host);V.controls=host;
+  peer=new Peer(host?'fc-'+r:undefined);
+  peer.on('open',id=>{myId=id;if(host){peers=[id];return}
+    hostConn=peer.connect('fc-'+r,{reliable:true});
+    hostConn.on('open',()=>hostConn.send({t:'hello',name:nick()}));
+    hostConn.on('data',onMsg);hostConn.on('close',()=>toast('O dono saiu da sala'))});
+  peer.on('connection',c=>{if(!isHost)return c.close();conns[c.peer]=c;c.on('data',m=>onHost(m,c.peer));
+    c.on('close',()=>{delete conns[c.peer];peers=peers.filter(x=>x!==c.peer);emit({t:'peers',list:peers});emit({t:'left',id:c.peer})})});
+  peer.on('call',call=>{names[call.peer]=call.metadata?.name||names[call.peer];call.answer();
+    call.on('stream',s=>tile(call.peer,s,'Tela de '+(names[call.peer]||'participante'),false));call.on('close',()=>dropTile(call.peer))});
+  peer.on('error',e=>toast(e.type==='peer-unavailable'?'Sala não encontrada ou dono offline':e.type==='unavailable-id'?'Sala já aberta em outra aba':'Erro: '+e.type))}
+const send=m=>isHost?onHost(m,myId):hostConn?.open&&hostConn.send(m);
+function emit(m,skipSelf){for(const c of Object.values(conns))c.open&&c.send(m);if(!skipSelf)onMsg(m)}
+function onHost(m,from){switch(m.t){
+  case'hello':names[from]=m.name;peers=[...new Set([...peers,from])];conns[from]?.send({t:'welcome',catalog:cat,state:gstate,sug,names});emit({t:'peers',list:peers,names:{[from]:m.name}});break;
+  case'm3u':if(from===myId){cat=parseM3U(m.text);emit({t:'catalog',catalog:cat})}break;
+  case'state':if(from===myId){gstate=m;emit(m,true)}break;
+  case'suggest':sug.push({title:String(m.title).slice(0,300),url:String(m.url).slice(0,500),by:String(m.by).slice(0,40)});sug=sug.slice(-50);emit({t:'sug',sug});break;
+  case'clearsug':if(from===myId){sug=[];emit({t:'sug',sug})}break;
+  case'stopshare':emit({t:'stopshare',id:from});break}}
+function onMsg(m){switch(m.t){
+  case'welcome':Object.assign(names,m.names||{});if(m.catalog)setCat(m.catalog);setSug(m.sug);if(m.state?.url)applyState(m.state);break;
+  case'catalog':setCat(m.catalog);break;case'sug':setSug(m.sug);break;case'state':applyState(m);break;
+  case'peers':Object.assign(names,m.names||{});peers=m.list;if(stream)callAll();break;
+  case'stopshare':case'left':if(m.id!==myId){called.delete(m.id);dropTile(m.id)}break}}
+function parseM3U(t){const cats=[],ci={},si={};let pend=null;const at=(l,k)=>(l.match(new RegExp(k+'="([^"]*)"'))||[])[1]||'';
+  for(const raw of t.split(/\r?\n/)){const l=raw.trim();
+    if(l.startsWith('#EXTINF')){const i=l.lastIndexOf(',');pend={title:i<0?'':l.slice(i+1).trim(),g:at(l,'group-title')||'Outros',logo:at(l,'tvg-logo')}}
+    else if(l&&l[0]!=='#'&&pend){const{title,g,logo}=pend;pend=null;let c=ci[g];if(c===undefined){c=ci[g]=cats.length;cats.push({name:g,items:[]})}
+      const m=title.match(/^(.*?)[\s._-]*\bS(\d+)E(\d+)/i);
+      if(m&&m[1]){const key=c+'|'+m[1];let it=si[key];if(it===undefined){it=si[key]=cats[c].items.length;cats[c].items.push({title:m[1],logo,episodes:[]})}
+        cats[c].items[it].episodes.push({title:('S'+m[2]+'E'+m[3]).toUpperCase(),url:l})}
+      else cats[c].items.push({title,logo,url:l})}}
+  return{categories:cats}}
+$('#create').onclick=()=>enter(Math.random().toString(36).slice(2,8),true);
+$('#join').onclick=()=>{const v=$('#code').value.trim().split('#').pop();if(v)enter(v,false)};
+$('#copy').onclick=()=>navigator.clipboard?.writeText(location.href).then(()=>toast('Link copiado'));
+for(const [a,b,c] of [['t1','p1','t2'],['t2','p2','t1']])$('#'+a).onclick=()=>{$('#'+b).hidden=false;$('#'+(b=='p1'?'p2':'p1')).hidden=true;$('#'+a).className='on';$('#'+c).className='g'};
+// ---- Tela (todos podem compartilhar)
+function tile(id,ms,label,muted){let f=$('#v'+id);if(!f){f=h('figure',{id:'v'+id},h('video',{autoplay:true,playsInline:true,controls:true,muted}),h('figcaption'));$('#grid').append(f)}
+  f.firstChild.srcObject=ms;f.lastChild.textContent=label;$('#noshare').hidden=true;f.firstChild.play().catch(()=>{})}
+function dropTile(id){$('#v'+id)?.remove();if(!$('#grid').children.length)$('#noshare').hidden=false}
+function callAll(){peers.forEach(id=>{if(id===myId||called.has(id))return;called.add(id);calls[id]=peer.call(id,stream,{metadata:{name:nick()}});setTimeout(quality,800)})}
+const Q={480:[854,480,8e5],720:[1280,720,25e5],1080:[1920,1080,5e6]};
+async function quality(){if(!stream)return;const [w,hh,b]=Q[$('#res').value];
+  await stream.getVideoTracks()[0].applyConstraints({width:{ideal:w},height:{ideal:hh},frameRate:{ideal:+$('#fps').value}}).catch(()=>{});
+  for(const c of Object.values(calls))for(const s of c.peerConnection?.getSenders()||[]){if(s.track?.kind!=='video')continue;
+    const p=s.getParameters();if(!p.encodings?.length)p.encodings=[{}];p.encodings[0].maxBitrate=b;s.setParameters(p).catch(()=>{})}}
+$('#res').onchange=$('#fps').onchange=quality;
+$('#share').onclick=async()=>{if(stream)return stopShare();
+  try{stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true})}catch{return}
+  stream.getVideoTracks()[0].onended=stopShare;tile('me',stream,'Você',true);$('#share').textContent='Parar';await quality();callAll()};
+function stopShare(){stream?.getTracks().forEach(t=>t.stop());stream=null;Object.values(calls).forEach(c=>c.close());calls={};called.clear();
+  dropTile('me');send({t:'stopshare'});$('#share').textContent='Compartilhar tela'}
+// ---- Cinema
+function load(url){if(lastUrl===url)return;lastUrl=url;hls?.destroy();hls=null;
+  if(/\.m3u8/i.test(url)&&window.Hls&&Hls.isSupported()){hls=new Hls();hls.loadSource(url);hls.attachMedia(V)}else V.src=url}
+const st=()=>({t:'state',url:lastUrl,title:$('#ptitle').textContent,playing:!V.paused,time:V.currentTime});
+function play(title,url){$('#ptitle').textContent=title;load(url);V.play().catch(()=>{});setTimeout(()=>send(st()),300)}
+V.onplay=V.onpause=V.onseeked=()=>isHost&&send(st());
+setInterval(()=>isHost&&!V.paused&&send(st()),5000);
+function applyState(s){if(isHost)return;pending=s;$('#ptitle').textContent=s.title||'';load(s.url);
+  if(V.readyState>0&&Math.abs(V.currentTime-s.time)>2)V.currentTime=s.time;
+  s.playing?V.play().catch(()=>toast('Toque em “Ativar vídeo/som”')):V.pause()}
+V.onloadedmetadata=()=>{if(pending&&!isHost){V.currentTime=pending.time;pending.playing&&V.play().catch(()=>{})}};
+$('#unmute').onclick=()=>{V.muted=false;V.play().catch(()=>{})};
+$('#mfile').onchange=async e=>{const f=e.target.files[0];if(f)send({t:'m3u',text:await f.text()})};
+$('#murl').onclick=async()=>{try{send({t:'m3u',text:await(await fetch($('#url').value)).text()})}catch{toast('Falha na URL (CORS?). Use o arquivo.')}};
+$('#clr').onclick=()=>send({t:'clearsug'});
+function pick(title,url){if(isHost){play(title,url);$('#t2').click()}else{send({t:'suggest',title,url,by:$('#nick').value||'Amigo'});toast('Sugestão enviada ao dono')}}
+function setSug(l){const b=$('#sug');b.replaceChildren();if(!l?.length)return void(b.textContent='Nenhuma');
+  l.forEach(s=>b.append(h('div',{},`${s.by}: ${s.title} `,h('button',{className:'ho',textContent:'▶',onclick:()=>pick(s.title,s.url)}))))}
+function setCat(c){cat=c;renderCat()}
+$('#q').oninput=()=>renderCat();
+function renderCat(){const box=$('#cats');box.replaceChildren();const q=$('#q').value.toLowerCase();
+  (cat?.categories||[]).forEach(c=>{const items=c.items.filter(i=>i.title.toLowerCase().includes(q));if(!items.length)return;
+    const row=h('div',{className:'row'});
+    items.slice(0,60).forEach(i=>{const img=/^https?:/.test(i.logo)?h('img',{src:i.logo,loading:'lazy',referrerPolicy:'no-referrer'}):h('div',{className:'ph'});
+      row.append(h('div',{className:'card',onclick:()=>i.episodes?showEps(i):pick(i.title,i.url)},img,h('span',{textContent:i.title+(i.episodes?` · ${i.episodes.length} ep`:'')})))});
+    box.append(h('h3',{textContent:`${c.name} (${items.length})`}),row)})}
+function showEps(i){const b=$('#eps');b.replaceChildren(h('h3',{textContent:i.title}),...i.episodes.map(e=>h('button',{className:'ep g',textContent:e.title,onclick:()=>pick(`${i.title} ${e.title}`,e.url)})))}
+// ---- App
+let dp;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e});
+$('#install').onclick=()=>dp?dp.prompt():toast('Menu do navegador → Instalar app / Adicionar à tela inicial');
+$('#rustapp').onclick=()=>open('https://github.com/zynxamigo/friendcine/releases','_blank');
+if(/iphone|ipad/i.test(navigator.userAgent))$('#ios').hidden=false;
+navigator.serviceWorker?.register('sw.js');
+if(location.hash.length>1){const r=location.hash.slice(1);enter(r,localStorage['host'+r]==='1')}
+</script></body></html>
