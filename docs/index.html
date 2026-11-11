@@ -191,6 +191,7 @@ function onHost(m,from){switch(m.t){
   case'suggest':sug.push({title:String(m.title).slice(0,300),url:String(m.url).slice(0,500),by:String(m.by).slice(0,40)});sug=sug.slice(-50);emit({t:'sug',sug});break;
   case'clearsug':if(from===myId){sug=[];emit({t:'sug',sug})}break;
   case'chat':{const message={name:String(m.message?.name||names[from]||'Amigo').slice(0,40),text:String(m.message?.text||'').slice(0,500),time:String(m.message?.time||'').slice(0,8)};if(!message.text)break;chatLog.push(message);chatLog=chatLog.slice(-100);emit({t:'chat',message});break}
+  case'chat':{const message={name:String(m.message?.name||names[from]||'Amigo').slice(0,40),text:String(m.message?.text||'').slice(0,500),time:String(m.message?.time||'').slice(0,8)};if(!message.text)break;chatLog.push(message);chatLog=chatLog.slice(-100);emit({t:'chat',message});break}
   case'stopshare':emit({t:'stopshare',id:from});break}}
 function onMsg(m){switch(m.t){
   case'welcome':Object.assign(names,m.names||{});if(m.catalog)setCat(m.catalog);setSug(m.sug);if(m.chat)drawChat(m.chat);if(m.state?.url)applyState(m.state);break;
