@@ -231,7 +231,7 @@ function setChannel(which){
  const screen=which==='screen';
  document.querySelector('#p1').hidden=!screen;document.querySelector('#p2').hidden=screen;
  screenButton.classList.toggle('on',screen);cinemaButton.classList.toggle('on',!screen);
- screenChannel.classList.toggle('active',screen);cinemaChannel.classList.toggle('active',!screen);
+ screenChannel.className=screen?'side-channel active':'side-channel';cinemaChannel.className=screen?'side-channel':'side-channel active';
  document.querySelector('#channel-title').textContent=screen?'Compartilhar tela':'Sala de cinema';
  document.querySelector('#channel-sub').textContent=screen?'Compartilhe uma janela, aplicativo ou tela inteira':'Escolha um título e assistam juntos';
 }
