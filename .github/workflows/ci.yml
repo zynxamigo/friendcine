@@ -7,3 +7,21 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo build --release
+
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build FriendCine
+        run: cargo build --release
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+      - name: Package Windows setup
+        run: iscc installer/friendcine.iss
+      - name: Upload setup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FriendCine-Setup
+          path: dist/FriendCine-Setup.exe
+          if-no-files-found: error
