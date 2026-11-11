@@ -122,26 +122,43 @@ async fn handle(app: &App, room: &str, id: u64, tx: &Tx, v: Value) {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    let app = Router::new()
-        .route("/", get(|| async { ([(header::CONTENT_TYPE, "text/html; charset=utf-8")], include_str!("../static/index.html")) }))
-        .route("/manifest.webmanifest", get(|| async { ([(header::CONTENT_TYPE, "application/manifest+json")], include_str!("../static/manifest.webmanifest")) }))
-        .route("/sw.js", get(|| async { ([(header::CONTENT_TYPE, "text/javascript")], include_str!("../static/sw.js")) }))
-        .route("/icon.svg", get(|| async { ([(header::CONTENT_TYPE, "image/svg+xml")], include_str!("../static/icon.svg")) }))
-        .route("/ws/{room}", get(ws))
-        .with_state(App::default());
-    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".into());
-    let l = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await.unwrap();
-    let address = format!("http://127.0.0.1:{port}");
-    println!("FriendCine em {address}");
-    if std::env::var_os("FC_NO_BROWSER").is_none() {
-        #[cfg(target_os = "windows")]
-        let _ = std::process::Command::new("cmd").args(["/C", "start", "", &address]).spawn();
-        #[cfg(target_os = "macos")]
-        let _ = std::process::Command::new("open").arg(&address).spawn();
-        #[cfg(all(unix, not(target_os = "macos")))]
-        let _ = std::process::Command::new("xdg-open").arg(&address).spawn();
-    }
-    axum::serve(l, app).await.unwrap();
+fn main() {
+    tauri::Builder::default()
+        .setup(|app| {
+            let router = Router::new()
+                .route("/", get(|| async { ([(header::CONTENT_TYPE, "text/html; charset=utf-8")], include_str!("../static/index.html")) }))
+                .route("/manifest.webmanifest", get(|| async { ([(header::CONTENT_TYPE, "application/manifest+json")], include_str!("../static/manifest.webmanifest")) }))
+                .route("/sw.js", get(|| async { ([(header::CONTENT_TYPE, "text/javascript")], include_str!("../static/sw.js")) }))
+                .route("/icon.svg", get(|| async { ([(header::CONTENT_TYPE, "image/svg+xml")], include_str!("../static/icon.svg")) }))
+                .route("/ws/{room}", get(ws))
+                .with_state(App::default());
+
+            let listener = tauri::async_runtime::block_on(async {
+                tokio::net::TcpListener::bind("127.0.0.1:0").await
+            })?;
+            let port = listener.local_addr()?.port();
+            let address = format!("http://127.0.0.1:{port}");
+
+            tauri::async_runtime::spawn(async move {
+                if let Err(error) = axum::serve(listener, router).await {
+                    eprintln!("FriendCine server error: {error}");
+                }
+            });
+
+            tauri::WebviewWindowBuilder::new(
+                app,
+                "main",
+                tauri::WebviewUrl::External(address.parse()?)
+            )
+            .title("FriendCine")
+            .inner_size(1280.0, 820.0)
+            .min_inner_size(900.0, 620.0)
+            .center()
+            .resizable(true)
+            .build()?;
+
+            Ok(())
+        })
+        .run(tauri::generate_context!())
+        .expect("Erro ao iniciar FriendCine");
 }
