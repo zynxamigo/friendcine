@@ -167,7 +167,7 @@ main{height:calc(100% - 62px);overflow:auto}
 const $=s=>document.querySelector(s),h=(t,a={},...k)=>{const e=document.createElement(t);Object.assign(e,a);e.append(...k);return e};
 const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.i);toast.i=setTimeout(()=>t.hidden=true,3000)};
 let ws,isHost=false,hostId=null,pcs={},peers=new Set(),stream=null,room='',cat=null,hls=null,lastUrl='',pending=null;
-const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'}]},V=$('#vid');
+const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'}]},V=$('#vid'),nick=()=>$('#nick').value||'Amigo';
 const send=o=>ws&&ws.readyState===1&&ws.send(JSON.stringify(o));
 function enter(r){room=r;location.hash=r;$('#home').hidden=true;$('#room').hidden=false;$('#rid').textContent=location.href;connect()}
 $('#create').onclick=()=>enter(Math.random().toString(36).slice(2,8));
